@@ -66,7 +66,7 @@ function LogoList() {
           : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
               <div
                 key={index}
-                className="bg-slate-200 animate-pulse rounded-xl w-full h-[200px]"
+                className="bg-slate-100 animate-pulse rounded-xl w-full h-[200px]"
               ></div>
             ))}
       </div>
