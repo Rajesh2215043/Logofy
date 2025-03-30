@@ -1,5 +1,5 @@
 import React from "react";
-import Info from "./_components/info";
+import Info from "./_components/Info";
 import LogoList from "./_components/LogoList";
 
 function Dashboard() {
