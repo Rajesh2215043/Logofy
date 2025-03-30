@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { UserDetailsContext } from "@/app/_context/UserDetailsContext";
 import { useContext } from "react";
-import { db } from "@/configs/firebaseConfig";
+import { db } from "@/configs/FirebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import Image from "next/image";
 import { useState } from "react";
