@@ -53,18 +53,34 @@ function GenerateLogo() {
       .replace("{logoPrompt}", formData.design?.prompt);
 
     console.log("Generated Prompt:", PROMPT);
-    // Add your AI logo generation logic here
 
-    const result = await axios.post("/api/ai-logo-model", {
-      prompt: PROMPT,
-      email: userDetails?.email,
-      title: formData.title,
-      desc: formData.desc,
-      type: modelType,
-    });
-    console.log(result?.data);
-    setLogoImage(result?.data?.Image);
-    setLoading(false);
+    try {
+      const result = await axios.post("/api/ai-logo-model", {
+        prompt: PROMPT,
+        email: userDetails?.email,
+        title: formData.title,
+        desc: formData.desc,
+        type: modelType,
+      });
+
+      if (result.data?.error) {
+        console.error("API Error:", result.data.error);
+        setLoading(false);
+        // You might want to show this error to the user in the UI
+        return;
+      }
+
+      console.log("API Response:", result.data);
+      setLogoImage(result?.data?.Image);
+    } catch (error) {
+      console.error(
+        "Error generating logo:",
+        error.response?.data || error.message
+      );
+      // You might want to show this error to the user in the UI
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -110,51 +126,25 @@ function GenerateLogo() {
   const handleDownload = async (format) => {
     try {
       if (format === "svg") {
-        // For SVG, we need to convert the PNG to SVG using a canvas
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.src = LogoImage;
-
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-        });
-
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-
-        // Convert to SVG-like format
+        // For SVG, create a simple SVG wrapper and open in new tab
         const svgData = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="${img.width}" height="${img.height}">
-            <image href="${LogoImage}" width="${img.width}" height="${img.height}"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+            <image href="${LogoImage}" width="1024" height="1024"/>
           </svg>
         `;
-
         const blob = new Blob([svgData], { type: "image/svg+xml" });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `logo-${formData.title}.svg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        window.open(url, "_blank");
         URL.revokeObjectURL(url);
       } else {
-        // For PNG and JPG, use direct download
-        const link = document.createElement("a");
-        link.href = LogoImage;
-        link.download = `logo-${formData.title}.${format}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // For PNG and JPG, open the direct URL in new tab
+        window.open(LogoImage, "_blank");
       }
+
       setShowDownloadMenu(false);
     } catch (error) {
-      console.error("Download failed:", error);
-      alert("Failed to download the logo. Please try again.");
+      console.error("Failed to open image:", error);
+      alert("Failed to open the image. Please try again.");
     }
   };
 
@@ -172,6 +162,10 @@ function GenerateLogo() {
               src={LogoImage}
               alt="Generated Logo"
               className="rounded-lg shadow-lg max-w-[300px] w-full"
+              onError={(e) => {
+                console.error("Error loading image:", e);
+                e.target.src = "/placeholder.png"; // Add a placeholder image
+              }}
             />
             <p className="text-gray-600 font-mono text-center">
               Your logo has been generated successfully!
