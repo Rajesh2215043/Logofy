@@ -50,7 +50,7 @@ function page() {
   }, [formData]);
 
   return (
-    <div className="mt-28 p-10 border border-gray-200 rounded-xl shadow-lg 2xl:mx-72">
+    <div className="mt-28 p-10 border border-gray-500 rounded-xl shadow-lg 2xl:mx-72">
       {step == 1 ? (
         <LogoTitle
           onHandleInputChange={(v) => onHandleInputChange("title", v)}
